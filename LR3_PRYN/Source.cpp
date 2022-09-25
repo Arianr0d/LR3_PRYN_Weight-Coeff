@@ -23,6 +23,29 @@ void output(pair<int, float> &result) {
 	}
 }
 
+// фнкция поиска максимума и степени недоминируемости матрицы Q_s
+void funDegreeDominance(int r_size, vector<vector<float>> &Q_s, vector<float> &Q_mu) {
+
+	for (int j = 0; j < r_size; j++) {
+		float max_value = Q_s[0][j];
+		for (int i = 0; i < r_size; i++) {
+			if (Q_s[i][j] > max_value) max_value = Q_s[i][j];
+		}
+		Q_mu.push_back(1 - max_value);
+	}
+}
+
+// функция нечеткого отношения строгого предпочтения
+void funFuzzyRelation(int r_size, vector<vector<float>> &Q, vector<vector<float>> &Q_s) {
+
+	for (int i = 0; i < r_size; i++) {
+		for (int j = 0; j < r_size; j++) {
+			if (Q[i][j] - Q[j][i] < 0) Q_s[i][j] = 0;
+			else Q_s[i][j] = Q[i][j] - Q[j][i];
+		}
+	}
+}
+
 // алгоритм поиска решения в задаче с весовыми коэффициентами
 // для нечетких отношений предпочтения
 void algorithm(int r_size, vector<float>& lambda, vector<vector<vector<float>>>& R, pair<int, float> &result) {
@@ -42,20 +65,9 @@ void algorithm(int r_size, vector<float>& lambda, vector<vector<vector<float>>>&
 		}
 	}
 	// поиск матрицы Q1s
-	for (int i = 0; i < r_size; i++) {
-		for (int j = 0; j < r_size; j++) {
-			if (Q1[i][j] - Q1[j][i] < 0) Q1_s[i][j] = 0;
-			else Q1_s[i][j] = Q1[i][j] - Q1[j][i];
-		}
-	}
+	funFuzzyRelation(r_size, Q1, ref(Q1_s));
 	// поиск максимума и степени недоминируемости матрицы Q1_s
-	for (int j = 0; j < r_size; j++) {
-		float max_value = Q1_s[0][j];
-		for (int i = 0; i < r_size; i++) {
-			if (Q1_s[i][j] > max_value) max_value = Q1_s[i][j];
-		}
-		Q1_mu.push_back(1 - max_value);
-	}
+	funDegreeDominance(r_size, Q1_s, ref(Q1_mu));
 
 	vector<vector<float>> Q2(r_size, vector<float>(r_size));
 	vector<vector<float>> Q2_s(r_size, vector<float>(r_size));
@@ -69,20 +81,9 @@ void algorithm(int r_size, vector<float>& lambda, vector<vector<vector<float>>>&
 		}
 	}
 	// поиск матрицы Q2s
-	for (int i = 0; i < r_size; i++) {
-		for (int j = 0; j < r_size; j++) {
-			if (Q2[i][j] - Q2[j][i] < 0) Q2_s[i][j] = 0;
-			else Q2_s[i][j] = Q2[i][j] - Q2[j][i];
-		}
-	}
+	funFuzzyRelation(r_size, Q2, ref(Q2_s));
 	// поиск максимума и степени недоминируемости матрицы Q2_s
-	for (int j = 0; j < r_size; j++) {
-		float max_value = Q2_s[0][j];
-		for (int i = 0; i < r_size; i++) {
-			if (Q2_s[i][j] > max_value) max_value = Q2_s[i][j];
-		}
-		Q2_mu.push_back(1 - max_value);
-	}
+	funDegreeDominance(r_size, Q2_s, ref(Q2_mu));
 
 	float min_value = 0.0;
 	// поиск общих степеней недоминируемости альтернатив
