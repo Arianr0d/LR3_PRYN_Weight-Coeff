@@ -96,43 +96,8 @@ void algorithm(int r_size, vector<float>& lambda, vector<vector<vector<float>>>&
 	}
 }
 
-// функция считывания матриц из консоли
-void inputMatrix(int lambda_count, int r_size, int r_count, vector<float>& lambda, vector<vector<vector<float>>>& R) {
-
-	string row;
-	int j = 0;
-
-	cin.ignore(cin.rdbuf()->in_avail());
-	cout << "Введите значения весовых коэффициентов: \n";
-	
-	getline(cin, row);
-	istringstream ist(row);
-	while (ist >> row) {
-		lambda.push_back(stod(row));
-		j++;
-	}
-
-	cout << "Укажите матрицы нечетких отношений предпочтения \n";
-	for (int k = 0; k < r_count; k++) {
-		cout << "\nМатрица R" + to_string(k + 1) << endl;
-		vector<vector<float>> r(r_size, vector<float>(r_size));
-		
-		for (int i = 0; i < r_size; i++) {
-			j = 0;
-			getline(cin, row);
-			istringstream ist(row);
-
-			while (ist >> row) {
-				r[i][j] = stod(row);
-				j++;
-			}
-		}
-		R.push_back(r);
-	}
-}
-
 // функция считывания матриц из файла
-void importFromFile(int lambda_count, int r_size, int r_count, vector<float> &lambda, vector<vector<vector<float>>> &R) {
+void importFromFile(int &lambda_count, int &r_size, int &r_count, vector<float> &lambda, vector<vector<vector<float>>> &R) {
 
 	string str;
 	vector<vector<float>> r_matrix(r_size, vector<float> (r_size));
@@ -140,6 +105,13 @@ void importFromFile(int lambda_count, int r_size, int r_count, vector<float> &la
 	if (in.is_open()) {
 		int i = 0,
 			k = -1;
+
+		getline(in, str);
+		r_size = stoi(str);  // считывание размера матрицы R
+		getline(in, str);
+		r_count = stoi(str);  // считывание количества матриц R
+		getline(in, str);
+		lambda_count = stoi(str);  // считывание количества весовых коэффициентов
 
 		// считывание весовых коэффициентов
 		getline(in, str);
@@ -177,7 +149,6 @@ void importFromFile(int lambda_count, int r_size, int r_count, vector<float> &la
 int main() {
 	setlocale(LC_ALL, "ru");
 
-	string ans;
 	int r_size = 6,
 		r_count = 7,
 		lambda_count = 7;
@@ -185,25 +156,10 @@ int main() {
 	vector<vector<vector<float>>> R;
 
 	cout << "Поиск решения задачи с весовыми коэффициентами для нечетких отношений предпочтения" << endl << endl;
-	while (true) {
-		cout << "Использовать значения по умолчанию (2 вариант): (yes / no) ";
-		cin >> ans;
-		if (ans == "no" || ans == "yes") break;
-	}
+	cout << "Считывание данных из файла!" << endl;
 
-	if (ans == "no") {
-		cout << "Введите размер матриц R: ";
-		cin >> r_size;
-		cout << "Введите число матриц R: ";
-		cin >> r_count;
-		cout << "Введите число весовых коэффициентов lambda: ";
-		cin >> lambda_count;
-		// считывание с консоли данных
-		inputMatrix(lambda_count, r_size, r_count, std::ref(lambda), std::ref(R));
-	}
-
-	// считывание значений по умолчанию
-	if (ans == "yes") importFromFile(lambda_count, r_size, r_count, std::ref(lambda), std::ref(R));
+	// считывание значений из файла
+	importFromFile(lambda_count, r_size, r_count, std::ref(lambda), std::ref(R));
 
 	pair<int, float> result;
 	// реализация алгоритма
@@ -212,6 +168,6 @@ int main() {
 	// запись результата в файл
 	output(result);
 
-	cout << "Результаты записаны в файл!";
+	cout << "Результаты успешно сохранены в файл!" << endl;
 
 }
