@@ -13,12 +13,17 @@ using namespace std;
 */
 
 // функция записи результата в файл
-void output(pair<int, float> &result) {
+void output(pair<int, float> &result, vector<float>& mu) {
 
 	ofstream out;
 	out.open("output.txt");
 	if (out.is_open()) {
-		out << "Ответ: оптимальная альтернатива - x" << result.first << ", phi_н.д.(x" << result.first <<
+		out << "Ответ:\n";
+		for (int i = 0; i < mu.size(); i++) {
+			out << "phi_н.д.(x" << i + 1 <<
+				") = " << mu[i] << "; " << endl;
+		}
+		out << "\nоптимальная альтернатива - x" << result.first << ", phi_н.д.(x" << result.first <<
 			") = " << result.second << endl;
 	}
 }
@@ -48,7 +53,11 @@ void funFuzzyRelation(int r_size, vector<vector<float>> &Q, vector<vector<float>
 
 // алгоритм поиска решения в задаче с весовыми коэффициентами
 // для нечетких отношений предпочтения
-void algorithm(int r_size, vector<float>& lambda, vector<vector<vector<float>>>& R, pair<int, float> &result) {
+void algorithm(int r_size, 
+			   vector<float>& lambda, 
+			   vector<vector<vector<float>>>& R, 
+			   pair<int, float> &result, 
+			   vector<float> &mu) {
 	
 	vector<vector<float>> Q1(r_size, vector<float>(r_size));
 	vector<vector<float>> Q1_s(r_size, vector<float>(r_size));
@@ -90,6 +99,7 @@ void algorithm(int r_size, vector<float>& lambda, vector<vector<vector<float>>>&
 	for (int i = 0; i < Q1_mu.size(); i++) {
 		if (Q1_mu[i] < Q2_mu[i]) min_value = Q1_mu[i];
 		else min_value = Q2_mu[i];
+		mu.push_back(min_value);
 
 		if (i == 0) result = make_pair(1, min_value);
 		if (min_value > result.second) result = make_pair(i + 1, min_value);
@@ -154,6 +164,7 @@ int main() {
 		lambda_count = 7;
 	vector<float> lambda;
 	vector<vector<vector<float>>> R;
+	vector<float> mu; // вектор степеней недоминируемости альтернатив
 
 	cout << "Поиск решения задачи с весовыми коэффициентами для нечетких отношений предпочтения" << endl << endl;
 	cout << "Считывание данных из файла!" << endl;
@@ -163,11 +174,11 @@ int main() {
 
 	pair<int, float> result;
 	// реализация алгоритма
-	algorithm(r_size, lambda, R, ref(result));
+	algorithm(r_size, lambda, R, ref(result), ref(mu));
 
 	// запись результата в файл
-	output(result);
+	output(result, mu);
 
 	cout << "Результаты успешно сохранены в файл!" << endl;
-
+	system("pause");
 }
